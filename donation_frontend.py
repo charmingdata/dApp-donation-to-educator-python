@@ -149,30 +149,27 @@ def access_data(_):
     amount_list, reason_list = [], []
     event_signature = "LogData(uint256,string,address,uint256)"
 
-    # Iterate over the blocks from earliest to latest (or a certain block number) and retrieve the event logs.
-    # Adding a bigger range than 1000 blocks will take much more time to finish iterating.
-    for block_number in range(1444600, 1444700):
-        logs = w3.eth.get_logs(
-            {
-                "address": "0x98544219dd60eCc071302dAfBfce22F74334f244",
-                "fromBlock": block_number,
-                "toBlock": block_number,
-                "topics": [w3.keccak(text=event_signature).hex()],
-            }
-        )
+    logs = w3.eth.get_logs(
+        {
+            "address": "0x98544219dd60eCc071302dAfBfce22F74334f244",
+            "fromBlock": 1444600,
+            "toBlock": 1587223,
+            "topics": [w3.keccak(text=event_signature).hex()],
+        }
+    )
 
-        for log in logs:
-            # print(log)
-            event_data = {
-                "amount": int.from_bytes(log["topics"][1], byteorder="big"),
-                "reason": w3.to_text(log["data"][-64:]),
-            }
+    for log in logs:
+        print(log)
+        event_data = {
+            "amount": int.from_bytes(log["topics"][1], byteorder="big"),
+            "reason": w3.to_text(log["data"][-64:]),
+        }
 
-            print(event_data["amount"], event_data["reason"])
+        print(event_data["amount"], event_data["reason"])
 
-            if event_data["amount"] > 45:
-                amount_list.append(event_data["amount"])
-                reason_list.append(event_data["reason"])
+        if event_data["amount"] > 45:
+            amount_list.append(event_data["amount"])
+            reason_list.append(event_data["reason"])
 
     df = pd.DataFrame(list(zip(amount_list, reason_list)), columns=["WEI", "Reason"])
 
